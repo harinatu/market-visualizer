@@ -8,8 +8,7 @@ CREATE TABLE IF NOT EXISTS instruments (
 
 CREATE TABLE IF NOT EXISTS candles (
     id BIGSERIAL PRIMARY KEY,
-    instrument_id INTEGER NOT NULL
-        REFERENCES instruments(id),
+    instrument_id INTEGER NOT NULL REFERENCES instruments(id),
     timeframe VARCHAR(5) NOT NULL,
     candle_time TIMESTAMPTZ NOT NULL,
     open NUMERIC(20, 8) NOT NULL,
@@ -26,8 +25,7 @@ ON candles (instrument_id, timeframe, candle_time DESC);
 
 CREATE TABLE IF NOT EXISTS alerts (
     id BIGSERIAL PRIMARY KEY,
-    instrument_id INTEGER NOT NULL
-        REFERENCES instruments(id),
+    instrument_id INTEGER NOT NULL REFERENCES instruments(id),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     signal VARCHAR(20) NOT NULL,
     evidence_strength VARCHAR(20) NOT NULL,
@@ -41,8 +39,6 @@ CREATE TABLE IF NOT EXISTS alerts (
 );
 
 -- Safe migration for databases created before timeframe was added.
--- Existing historical alerts are assigned '15m' because their original
--- timeframe was not stored and cannot be reliably reconstructed.
 ALTER TABLE alerts
 ADD COLUMN IF NOT EXISTS timeframe VARCHAR(5) NOT NULL DEFAULT '15m';
 
@@ -55,7 +51,6 @@ VALUES
     ('TCS', 'Tata Consultancy Services', 'stock', 'NSE'),
     ('HDFCBANK', 'HDFC Bank', 'stock', 'NSE')
 ON CONFLICT (symbol) DO NOTHING;
-
 
 CREATE TABLE IF NOT EXISTS anomaly_events (
     id BIGSERIAL PRIMARY KEY,
